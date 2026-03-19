@@ -1,0 +1,16 @@
+{
+  "total_gross_revenue": 7179.36,
+  "total_ebay_fees": 1251.7,
+  "net_recoverable_value": 5927.66,
+  "items_with_ebay_data": 77,
+  "items_without_ebay_data": 42,
+  "bid_conservative": 1975.89,
+  "bid_standard": 2963.83,
+  "per_unit_cost_conservative": 4.63,
+  "per_unit_cost_standard": 6.94,
+  "fee_breakdown": {
+    "final_value_fee": "12.9%",
+    "payment_processing_fee": "3.49% + $0.30",
+    "total_fee_rate": "16.39% + $0.30/item"
+  }
+}

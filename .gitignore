@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Debug files
+debug_*.py
+debug_*.txt
+test_*.py
+ebay_debug.html
+ebay_end.html
+ebay_full_response.html
+ebay_start.html
+ebay_middle.html
+ebay_items.txt
+warehouse_runner.html
+scrape_errors.log
+
+# Scraper internals
+manifest_enricher/
+run_enricher*.py
+scrape_ebay_all_222.py
+generate_template.py
+serve.py
+server.log
+inspect_ebay_html.py

@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShaneRUS - Pallet Data Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1a73e8 0%, #1e88e5 100%);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: white;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-star {
+            font-size: 2rem;
+            color: #ffd93d;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            padding: 0.7rem 1.2rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .btn-account {
+            background: white;
+            color: #1a73e8;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .btn-account:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Layout */
+        .main-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: calc(100vh - 80px);
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 0 !important;
+            height: 0 !important;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding: 0 !important;
+            overflow: hidden !important;
+            display: none !important;
+            visibility: hidden !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .sidebar-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            margin-bottom: 0.5rem;
+            user-select: none;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(148, 163, 184, 0.1);
+            color: white;
+        }
+
+        .sidebar-icon {
+            font-size: 1.5rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .pallet-box {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f4a261 0%, #e76f51 100%);
+            border-radius: 4px;
+            margin: 1rem 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pallet-box::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 30%;
+            background: rgba(0,0,0,0.1);
+            top: 0;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '📦';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            font-size: 200px;
+            opacity: 0.1;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-top: 4px solid;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.blue {
+            border-top-color: #1e88e5;
+        }
+
+        .stat-card.green {
+            border-top-color: #43a047;
+        }
+
+        .stat-card.orange {
+            border-top-color: #f57c00;
+        }
+
+        .stat-card.red {
+            border-top-color: #e53935;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card.blue .stat-value { color: #1e88e5; }
+        .stat-card.green .stat-value { color: #43a047; }
+        .stat-card.orange .stat-value { color: #f57c00; }
+        .stat-card.red .stat-value { color: #e53935; }
+
+        .stat-change {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        /* Data Table */
+        .table-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .table-section h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            width: 180px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .price {
+            color: #43a047;
+            font-weight: 600;
+        }
+
+        .ebay-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-ok {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-no {
+            background: #ffccbc;
+            color: #d84315;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .pagination button {
+            padding: 0.6rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .pagination button:hover {
+            background: #f0f0f0;
+        }
+
+        .pagination button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Footer */
+        footer {
+            display: none !important;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .section {
+            scroll-margin-top: 80px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo-section">
+            <div class="logo-text">ShaneRUS</div>
+            <div class="logo-star">⭐</div>
+        </div>
+        <nav>
+            <a href="#home" class="active nav-link">Home</a>
+            <a href="#trends" class="nav-link">Pallet Trends</a>
+            <a href="#costco" class="nav-link">Costco Data</a>
+            <a href="#ebay" class="nav-link">eBay Analytics</a>
+            <a href="#about" class="nav-link">About</a>
+        </nav>
+        <div class="header-right">
+            <button class="btn-account">My Account</button>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Dashboard</div>
+                <div class="sidebar-item sidebar-nav" data-section="home">
+                    <span class="sidebar-icon">📊</span>
+                    <span>Overview</span>
+                </div>
+                <div class="sidebar-item sidebar-nav" data-section="trends">
+                    <span class="sidebar-icon">📈</span>
+                    <span>Analytics</span>
+                </div>
+                <div class="sidebar-item sidebar-nav" data-section="ebay">
+                    <span class="sidebar-icon">🎯</span>
+                    <span>Performance</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Data</div>
+                <div class="sidebar-item sidebar-nav" data-section="costco" data-filter="">
+                    <span class="sidebar-icon">📦</span>
+                    <span>Pallets</span>
+                </div>
+                <div class="sidebar-item sidebar-nav" data-section="costco" data-filter="OK">
+                    <span class="sidebar-icon">🏬</span>
+                    <span>Costco</span>
+                </div>
+                <div class="sidebar-item sidebar-nav" data-section="costco" data-filter="EBAY">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>eBay</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Inventory</div>
+                <div class="pallet-box"></div>
+                <div class="pallet-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-left: 20px;"></div>
+                <div class="pallet-box" style="background: linear-gradient(135deg, #43a047 0%, #388e3c 100%); margin-left: 10px;"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Hero -->
+            <div class="hero section" id="home" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                <div>
+                    <h1>Pallet Data Analytics</h1>
+                    <p>Real-time Costco Returns & eBay Marketplace Intelligence</p>
+                    <div style="margin-top: 1.5rem;">
+                        <a href="https://bstock.com/buy/listings/details/69b9b5ca8c0eeb772b03f285" target="_blank" style="display: inline-block; background: white; color: #667eea; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                            📦 View BStock Listing
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bid Recommendation Card -->
+                <div style="background: rgba(255,255,255,0.15); padding: 2rem; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px;">Max Bid Recommendation</div>
+                    <div style="font-size: 3rem; font-weight: bold; color: white; margin-bottom: 0.5rem;" id="hero-bid-price">--</div>
+                    <div style="color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-bottom: 1.5rem;">Standard scenario (100% ROI)</div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 1rem;">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 0.5rem;">Conservative: <span style="color: white; font-weight: 600;" id="hero-bid-conservative">--</span></div>
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">Standard: <span style="color: white; font-weight: 600;" id="hero-bid-standard">--</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Totals</div>
+                    <div class="stat-value" style="font-size: 1.8rem;">427 Units / 222 SKUs</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">eBay Data Found</div>
+                    <div class="stat-value" style="font-size: 1.8rem;">250 Units / 122 SKUs</div>
+                    <div class="stat-change">Last 7 days</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">eBay Profit Potential</div>
+                    <div class="stat-value" id="ebay-profit">--</div>
+                    <div class="stat-change" id="ebay-profit-detail">250 units @ avg price - fees</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-label">$5 Fallback Profit</div>
+                    <div class="stat-value" id="fallback-bid">--</div>
+                    <div class="stat-change" id="fallback-detail">201 units @ $5 minus fees</div>
+                </div>
+            </div>
+
+            <!-- True Profit Calculator Section -->
+            <div class="section" id="true-profit-section" style="margin-bottom: 2rem;">
+                <h2 style="color: #1e293b; margin-bottom: 1.5rem;">💰 True Profit Calculator</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Net Recoverable</div>
+                        <div class="stat-value" id="total-net-display">$5,577</div>
+                        <div class="stat-change" style="text-align: left; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+
+                            <div style="margin-bottom: 5px;"><strong>eBay Profit Potential: $4,773</strong></div>
+                            <div style="font-size: 0.85em; color: #666; margin-bottom: 12px;">226 units (line-by-line) minus fees</div>
+
+                            <div style="margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; background: #f8fbff; padding: 5px; border-radius: 5px; border: 1px solid #cce5ff;">
+                                <strong style="color: #004085; font-size: 0.9em;">Fallback Scenario:</strong>
+                                <select id="fallback-scenario-select" style="font-size: 0.85em; padding: 3px 5px; border-radius: 4px; border: 1px solid #ccc; outline: none; cursor: pointer;">
+                                    <option value="flat5">$5 Flat Fallback (+$804 Net)</option>
+                                    <option value="retail35">35% Retail Recovery (+$2,780 Net)</option>
+                                </select>
+                            </div>
+                            <div id="fallback-detail-text" style="font-size: 0.85em; color: #666; margin-top: 4px;">201 units @ $5 minus fees</div>
+
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border: 2px solid #007bff; background-color: #f8fbff;">
+                        <div class="stat-label" style="color: #007bff;">Cost of Pallet (Your Bid)</div>
+                        <div style="font-size: 2.2em; font-weight: bold; margin: 15px 0; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: #333; margin-right: 5px;">$</span>
+                            <input type="number" id="pallet-cost-input" value="2789"
+                                   style="width: 120px; font-size: 1em; font-weight: bold; border: none; border-bottom: 3px solid #007bff; background: transparent; outline: none; color: #333; text-align: center;">
+                        </div>
+                        <div class="stat-change">Type your max bid here</div>
+                    </div>
+
+                    <div class="stat-card" id="true-profit-card" style="background-color: #e6f4ea; border: 1px solid #28a745;">
+                        <div class="stat-label" style="color: #1e7e34;">Projected True Profit</div>
+                        <div class="stat-value" id="true-profit-display" style="color: #28a745;">$2,788</div>
+                        <div class="stat-change" id="roi-display" style="color: #28a745; font-weight: bold; font-size: 1.1em; margin-top: 5px;">100% ROI</div>
+                    </div>
+                </div>
+
+            <!-- Charts -->
+            <div class="charts-grid section" id="ebay">
+                <div class="chart-card">
+                    <h3>💰 Top 15 Items by eBay Revenue</h3>
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>📊 eBay Data Coverage (222 Items)</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-section section" id="costco">
+                <h2>🏷️ Inventory Listing</h2>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Search</label>
+                        <input type="text" placeholder="Item name or #" id="search-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>Category</label>
+                        <select id="category-filter">
+                            <option value="">All Categories</option>
+                            <option value="SMALL APPLIANCES">Small Appliances</option>
+                            <option value="ELECTRONICS">Electronics</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="status-filter">
+                            <option value="">All Status</option>
+                            <option value="OK">Costco Match</option>
+                            <option value="NO_MATCH">No Match</option>
+                        </select>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item #</th>
+                            <th>Description</th>
+                            <th>Costco Name</th>
+                            <th>Costco Price</th>
+                            <th>Qty</th>
+                            <th>eBay Avg (Last 10)</th>
+                            <th>eBay Range</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    </tbody>
+                </table>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="about">
+        <div style="max-width: 1200px; margin: 0 auto; text-align: left;">
+            <h3 style="margin-bottom: 1rem; color: #fff;">About ShaneRUS Pallet Analytics</h3>
+            <p style="margin-bottom: 1rem; line-height: 1.6;">
+                This tool provides comprehensive analysis of liquidation pallet inventory by combining real-time data from Costco and eBay marketplaces.
+                It helps liquidation buyers make informed bidding decisions based on historical market pricing and demand patterns.
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                <div>
+                    <h4>Data Sources</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✓ Costco.com product matching</li>
+                        <li>✓ eBay sold listings (7 days)</li>
+                        <li>✓ Market price trends</li>
+                        <li>✓ Sales volume analytics</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Features</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✓ Pallet financial projections</li>
+                        <li>✓ Bid recommendations</li>
+                        <li>✓ ROI analysis (50%-150%)</li>
+                        <li>✓ Interactive data tables</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>How It Works</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✓ Scrapes Costco for product names</li>
+                        <li>✓ Finds comparable eBay sales</li>
+                        <li>✓ Calculates overhead & fees</li>
+                        <li>✓ Generates bid strategy</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.2); text-align: center;">
+                <p>&copy; 2025 ShaneRUS Pallet Analytics. Powered by Costco & eBay Data Intelligence</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- HARDCODED TRUE PALLET DATA (from manifest_enriched.xlsx) ---
+        const TOTAL_UNITS = 427;
+        const CLEAN_KNOWN_UNITS = 226;
+        const CLEAN_KNOWN_GROSS = 5966.65;
+        const FALLBACK_UNITS = 201;
+        let fallbackPrice = 5.00;
+        const TOTAL_FEE_PERCENTAGE = 0.20;
+
+        let allData = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filteredData = [];
+        let priceChart = null;
+        let statusChart = null;
+        let financialData = {};
+
+        // --- CORE CALCULATION FUNCTION (disabled - using True Profit Calculator instead) ---
+        function calculateDashboardBids_disabled() {
+            // 1. Calculate the Fallback Bucket Gross
+            const fallbackGross = FALLBACK_UNITS * fallbackPrice;
+
+            // 2. Calculate True Total Gross Revenue
+            const totalGrossRevenue = CLEAN_KNOWN_GROSS + fallbackGross;
+
+            // 3. Calculate Net Recoverable (Deducting 20% for fees/shipping)
+            const netRecoverable = totalGrossRevenue * (1 - TOTAL_FEE_PERCENTAGE);
+
+            // 4. Calculate Final Bid Recommendations
+            const standardBid = netRecoverable / 2.0;     // 100% ROI Target
+            const conservativeBid = netRecoverable / 2.5; // 150% ROI Target
+
+            // Update DOM elements
+            const updateEl = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '$' + Math.round(value).toLocaleString('en-US');
+            };
+
+            updateEl('standard-bid', standardBid);
+            updateEl('conservative-bid', conservativeBid);
+            updateEl('net-recoverable', netRecoverable);
+            updateEl('ebay-profit', CLEAN_KNOWN_GROSS * (1 - TOTAL_FEE_PERCENTAGE));
+            updateEl('fallback-bid', fallbackGross * (1 - TOTAL_FEE_PERCENTAGE));
+
+            // Update HERO section with correct bids
+            updateEl('hero-bid-price', standardBid);
+            updateEl('hero-bid-conservative', conservativeBid);
+            updateEl('hero-bid-standard', standardBid);
+
+            // Update detail text
+            if (document.getElementById('ebay-profit-detail')) {
+                document.getElementById('ebay-profit-detail').textContent = `${CLEAN_KNOWN_UNITS} units (line-by-line) minus fees`;
+            }
+            if (document.getElementById('fallback-detail')) {
+                document.getElementById('fallback-detail').textContent = `${FALLBACK_UNITS} units @ $${fallbackPrice} minus fees`;
+            }
+        }
+
+        // Load financial summary
+        fetch('financial_summary.json')
+            .then(response => response.json())
+            .then(data => {
+                financialData = data;
+                updateFinancialDisplay();
+            })
+            .catch(err => console.error('Error loading financial data:', err));
+
+        // Load data from JSON
+        fetch('dashboard_data.json')
+            .then(response => response.json())
+            .then(data => {
+                allData = data.items.map(item => ({
+                    itemNum: item['Item #'],
+                    description: item['Item Description'],
+                    costcoName: item['Costco Name'],
+                    costcoPrice: item['Costco Price'],
+                    qty: item['Qty'],
+                    ebayCount: item['eBay Sales Count (7d)'] || 0,
+                    ebayAvg: item['eBay Avg Sold Price'] || null,
+                    ebayMin: item['eBay Min'] || null,
+                    ebayMax: item['eBay Max'] || null,
+                    status: item['Costco Name'] ? 'OK' : 'NO_MATCH'
+                }));
+
+                filteredData = [...allData];
+                updateStats();
+                updateCharts();
+                renderTable();
+            })
+            .catch(err => console.error('Error loading data:', err));
+
+        function updateFinancialDisplay() {
+            // Set hero bid values from hardcoded constants
+            const netRecoverable = 5577;
+            const standardBid = Math.round(netRecoverable / 2);
+            const conservativeBid = Math.round(netRecoverable / 2.5);
+
+            const heroPrice = document.getElementById('hero-bid-price');
+            const heroCons = document.getElementById('hero-bid-conservative');
+            const heroStd = document.getElementById('hero-bid-standard');
+
+            if (heroPrice) heroPrice.textContent = '$' + standardBid.toLocaleString('en-US');
+            if (heroCons) heroCons.textContent = '$' + conservativeBid.toLocaleString('en-US');
+            if (heroStd) heroStd.textContent = '$' + standardBid.toLocaleString('en-US');
+
+            // Set eBay Profit Potential and Fallback Profit stat cards
+            calculateEbayProfit();
+        }
+
+        function calculateEbayProfit() {
+            // CORRECT NUMBERS FROM ACTUAL manifest_enriched.xlsx
+            // Clean Known Revenue: $5,966.65 (226 realistic units, outliers removed)
+            const cleanKnownRevenue = 5966.65;
+            const TOTAL_FEE_PERCENTAGE = 0.20;
+
+            // Subtract fees from clean known revenue
+            const cleanKnownNetRecoverable = cleanKnownRevenue * (1 - TOTAL_FEE_PERCENTAGE);
+
+            // Display clean known net recoverable
+            const profitEl = document.getElementById('ebay-profit');
+            const detailEl = document.getElementById('ebay-profit-detail');
+
+            if (profitEl) {
+                profitEl.textContent = '$' + Math.round(cleanKnownNetRecoverable).toLocaleString('en-US');
+            }
+            if (detailEl) {
+                detailEl.textContent = `Clean known revenue minus 20% fees`;
+            }
+
+            // Calculate fallback bid ($5 per unit for unknown/outlier items)
+            calculateFallbackBid();
+        }
+
+        function calculateFallbackBid() {
+            // CORRECT NUMBERS FROM ACTUAL manifest_enriched.xlsx
+            const unknownOutlierUnits = 201; // 177 unknown + 24 outliers
+            const FALLBACK_PRICE = 5.00;
+            const TOTAL_FEE_PERCENTAGE = 0.20;
+
+            // Unknown/Outlier Revenue: 201 units × $5 = $1,005
+            const fallbackGross = unknownOutlierUnits * FALLBACK_PRICE;
+            const fallbackNet = fallbackGross * (1 - TOTAL_FEE_PERCENTAGE);
+
+            const fallbackBidEl = document.getElementById('fallback-bid');
+            const fallbackDetailEl = document.getElementById('fallback-detail');
+            if (fallbackBidEl) {
+                fallbackBidEl.textContent = '$' + Math.round(fallbackNet);
+            }
+            if (fallbackDetailEl) {
+                fallbackDetailEl.textContent = `Unknown/Outlier Revenue: $${fallbackGross.toFixed(2)} (${unknownOutlierUnits} units x $${FALLBACK_PRICE}) minus fees`;
+            }
+        }
+
+        function calculateScenario_disabled() {
+            const FINAL_VALUE_FEE = 0.129;
+            const PAYMENT_PROCESSING_FEE = 0.0349;
+            const PAYMENT_FEE_FIXED = 0.30;
+            const FALLBACK_PRICE = 5.00;
+
+            let scenario_gross = 0;
+            let scenario_fees = 0;
+            let scenario_net = 0;
+            let units_with_ebay = 0;
+            let units_without_ebay = 0;
+
+            allData.forEach(item => {
+                if (!item.qty) return;
+
+                if (item.ebayCount > 0 && item.ebayAvg) {
+                    const sell_price = item.ebayAvg;
+                    const per_unit_fee = (sell_price * FINAL_VALUE_FEE) + (sell_price * PAYMENT_PROCESSING_FEE) + PAYMENT_FEE_FIXED;
+                    scenario_gross += sell_price * item.qty;
+                    scenario_fees += per_unit_fee * item.qty;
+                    units_with_ebay += item.qty;
+                } else {
+                    const per_unit_fee = (FALLBACK_PRICE * FINAL_VALUE_FEE) + (FALLBACK_PRICE * PAYMENT_PROCESSING_FEE) + PAYMENT_FEE_FIXED;
+                    scenario_gross += FALLBACK_PRICE * item.qty;
+                    scenario_fees += per_unit_fee * item.qty;
+                    units_without_ebay += item.qty;
+                }
+            });
+
+            scenario_net = scenario_gross - scenario_fees;
+            const scenario_bid_conservative = scenario_net / 3;
+            const scenario_bid_standard = scenario_net / 2;
+
+            document.getElementById('scenario-gross').textContent = '$' + scenario_gross.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('scenario-fees').textContent = '$' + scenario_fees.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('scenario-net').textContent = '$' + scenario_net.toLocaleString('en-US', { maximumFractionDigits: 2 });
+
+            document.getElementById('scenario-bid-conservative').textContent = '$' + scenario_bid_conservative.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('scenario-bid-conservative-unit').textContent = '$' + (scenario_bid_conservative / 427).toFixed(2) + '/unit (150% ROI)';
+
+            document.getElementById('scenario-bid-standard').textContent = '$' + scenario_bid_standard.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('scenario-bid-standard-unit').textContent = '$' + (scenario_bid_standard / 427).toFixed(2) + '/unit (100% ROI)';
+
+            // Update hero card with $5 scenario
+            document.getElementById('hero-bid-price').textContent = '$' + scenario_bid_standard.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('hero-bid-conservative').textContent = '$' + scenario_bid_conservative.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('hero-bid-standard').textContent = '$' + scenario_bid_standard.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+            // Update main bid recommendations section with $5 scenario
+            document.getElementById('bid-conservative-scenario').textContent = '$' + scenario_bid_conservative.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('bid-conservative-scenario-unit').textContent = '$' + (scenario_bid_conservative / 427).toFixed(2) + '/unit (150% ROI)';
+
+            document.getElementById('bid-standard-scenario').textContent = '$' + scenario_bid_standard.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('bid-standard-scenario-unit').textContent = '$' + (scenario_bid_standard / 427).toFixed(2) + '/unit (100% ROI)';
+        }
+
+        function updateStats() {
+            // Stats are hardcoded in the HTML, no dynamic overwriting needed
+        }
+
+        function updateCharts() {
+            // Chart 1: Top 15 items by eBay revenue potential (avg price × qty)
+            const revenueItems = allData
+                .filter(item => item.ebayAvg && item.qty)
+                .map(item => ({
+                    label: (item.description || item.itemNum || '').substring(0, 30),
+                    revenue: Math.round(item.ebayAvg * item.qty)
+                }))
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 15);
+
+            if (priceChart) priceChart.destroy();
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: revenueItems.map(i => i.label),
+                    datasets: [{
+                        label: 'eBay Revenue Potential ($)',
+                        data: revenueItems.map(i => i.revenue),
+                        backgroundColor: 'rgba(102, 126, 234, 0.75)',
+                        borderColor: '#667eea',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Top 15 Items by eBay Revenue Potential', font: { size: 13 } }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { callback: val => '$' + val.toLocaleString() }
+                        },
+                        y: { ticks: { font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // Chart 2: eBay data coverage doughnut
+            const withEbay = allData.filter(item => item.ebayCount > 0).length;
+            const noEbay = allData.length - withEbay;
+
+            if (statusChart) statusChart.destroy();
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['eBay Sales Data (124 items)', 'No Data — $5 Fallback (98 items)'],
+                    datasets: [{
+                        data: [withEbay, noEbay],
+                        backgroundColor: ['#43a047', '#f57c00'],
+                        borderColor: ['#2e7d32', '#e65100'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filteredData.slice(start, end);
+
+            tbody.innerHTML = pageData.map(item => {
+                const ebayAvgText = item.ebayAvg ? `$${item.ebayAvg.toFixed(2)}` : '--';
+                const ebayRangeText = item.ebayMin && item.ebayMax ?
+                    `$${item.ebayMin.toFixed(2)} - $${item.ebayMax.toFixed(2)}` : '--';
+
+                return `
+                    <tr>
+                        <td><strong>${item.itemNum}</strong></td>
+                        <td>${item.description}</td>
+                        <td>${item.costcoName || '--'}</td>
+                        <td class="price">${item.costcoPrice ? '$' + item.costcoPrice.toFixed(2) : '--'}</td>
+                        <td>${item.qty || '--'}</td>
+                        <td><span class="ebay-badge">${ebayAvgText}</span></td>
+                        <td>${ebayRangeText}</td>
+                        <td><span class="status-badge ${item.status === 'OK' ? 'status-ok' : 'status-no'}">${item.status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            let html = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button ${i === currentPage ? 'class="active"' : ''} onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderTable();
+            window.scrollTo(0, 0);
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const category = document.getElementById('category-filter').value;
+            const status = document.getElementById('status-filter').value;
+
+            filteredData = allData.filter(item => {
+                const matchSearch = !search ||
+                    item.description.toLowerCase().includes(search) ||
+                    item.itemNum.includes(search) ||
+                    (item.costcoName && item.costcoName.toLowerCase().includes(search));
+
+                const matchStatus = !status || item.status === status;
+
+                return matchSearch && matchStatus;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('category-filter').addEventListener('change', applyFilters);
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+
+        // Interactive Calculator
+        const calcFallback = document.getElementById('calc-fallback');
+        const calcFee = document.getElementById('calc-fee');
+        const calcOutlier = document.getElementById('calc-outlier');
+
+        function updateCalculator_disabled() {
+            if (!allData || allData.length === 0) return;
+
+            const fallbackPrice = parseFloat(calcFallback.value);
+            const feePercent = parseFloat(calcFee.value) / 100;
+            const outlierCount = parseInt(calcOutlier.value);
+
+            // Update display values
+            document.getElementById('calc-fallback-display').textContent = '$' + fallbackPrice.toFixed(2);
+            document.getElementById('calc-fee-display').textContent = (feePercent * 100).toFixed(0) + '%';
+            document.getElementById('calc-outlier-display').textContent = outlierCount;
+
+            // Calculate based on eBay data
+            const items_by_price = allData
+                .filter(item => item.ebayAvg && item.ebayAvg > 0 && item.qty)
+                .map(item => ({ price: item.ebayAvg, qty: item.qty }))
+                .sort((a, b) => b.price - a.price);
+
+            // Remove outliers
+            const filtered_items = items_by_price.slice(outlierCount);
+
+            // Calculate gross revenue
+            let gross = 0;
+            filtered_items.forEach(item => {
+                gross += item.price * item.qty;
+            });
+
+            // Add fallback items (items without eBay data, adjusted for removed outliers)
+            const fallback_qty = 427 - filtered_items.reduce((sum, item) => sum + item.qty, 0);
+            gross += fallback_qty * fallbackPrice;
+
+            // Calculate fees and net
+            const fees = gross * feePercent;
+            const net = gross - fees;
+            const bid_conservative = net / 3;
+            const bid_standard = net / 2;
+            const bid_aggressive = net / 1.5;
+
+            // Update displays
+            document.getElementById('calc-gross').textContent = '$' + gross.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('calc-fees').textContent = '$' + fees.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('calc-net').textContent = '$' + net.toLocaleString('en-US', { maximumFractionDigits: 2 });
+
+            document.getElementById('calc-bid-conservative').textContent = '$' + bid_conservative.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('calc-bid-standard').textContent = '$' + bid_standard.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            document.getElementById('calc-bid-aggressive').textContent = '$' + bid_aggressive.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        // Old event listeners (disabled - using True Profit Calculator instead)
+        // calcFallback.addEventListener('input', updateCalculator);
+        // calcFee.addEventListener('input', updateCalculator);
+        // calcOutlier.addEventListener('input', updateCalculator);
+
+        // True Profit Calculator
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- HARDCODED BASE VARIABLES ---
+            const CLEAN_KNOWN_NET = 4773.32; // Fixed safe Net for the 226 eBay matched units
+
+            // Fallback Options Net Values (Already minus 20% fees)
+            const FALLBACK_NET_FLAT5 = 804.00;     // ($5 * 201 units) - 20% fees
+            const FALLBACK_NET_RETAIL35 = 2780.20; // ($9,929.29 retail * 0.35) - 20% fees
+
+            let currentFallbackNet = FALLBACK_NET_FLAT5;
+
+            // --- DOM ELEMENTS ---
+            const costInput = document.getElementById('pallet-cost-input');
+            const profitDisplay = document.getElementById('true-profit-display');
+            const roiDisplay = document.getElementById('roi-display');
+            const profitCard = document.getElementById('true-profit-card');
+            const totalNetDisplay = document.getElementById('total-net-display');
+            const fallbackSelect = document.getElementById('fallback-scenario-select');
+            const fallbackDetailText = document.getElementById('fallback-detail-text');
+
+            // --- CORE CALCULATOR ---
+            function calculateProfit() {
+                if (!costInput) return;
+
+                // 1. Calculate the new total Net Recoverable based on the dropdown
+                const totalNetRecoverable = CLEAN_KNOWN_NET + currentFallbackNet;
+                if (totalNetDisplay) totalNetDisplay.textContent = '$' + Math.round(totalNetRecoverable).toLocaleString();
+
+                // 2. Calculate the True Profit vs Bid Cost
+                const palletCost = parseFloat(costInput.value) || 0;
+                const trueProfit = totalNetRecoverable - palletCost;
+
+                // 3. Calculate ROI
+                let roi = 0;
+                if (palletCost > 0) {
+                    roi = (trueProfit / palletCost) * 100;
+                }
+
+                // 4. Update UI
+                if (profitDisplay) profitDisplay.textContent = '$' + Math.round(trueProfit).toLocaleString();
+                if (roiDisplay) roiDisplay.textContent = Math.round(roi) + '% ROI';
+
+                // 5. Change colors based on profitability
+                if (trueProfit >= 0) {
+                    if (profitDisplay) profitDisplay.style.color = '#28a745';
+                    if (roiDisplay) roiDisplay.style.color = '#28a745';
+                    if (profitCard) {
+                        profitCard.style.backgroundColor = '#e6f4ea';
+                        profitCard.style.borderColor = '#28a745';
+                    }
+                } else {
+                    if (profitDisplay) profitDisplay.style.color = '#dc3545';
+                    if (roiDisplay) roiDisplay.style.color = '#dc3545';
+                    if (profitCard) {
+                        profitCard.style.backgroundColor = '#f8d7da';
+                        profitCard.style.borderColor = '#dc3545';
+                    }
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Listen for Dropdown Changes
+            if (fallbackSelect) {
+                fallbackSelect.addEventListener('change', (e) => {
+                    if (e.target.value === 'flat5') {
+                        currentFallbackNet = FALLBACK_NET_FLAT5;
+                        if (fallbackDetailText) fallbackDetailText.textContent = '201 units @ $5 minus fees';
+                    } else {
+                        currentFallbackNet = FALLBACK_NET_RETAIL35;
+                        if (fallbackDetailText) fallbackDetailText.textContent = '35% of $9,929 original retail value minus fees';
+                    }
+                    calculateProfit(); // Instantly update the math
+                });
+            }
+
+            // Listen for Bid Input Changes
+            if (costInput) {
+                costInput.addEventListener('input', calculateProfit);
+                calculateProfit(); // Initialize math on load
+            }
+        });
+
+        // Sidebar navigation
+        const sidebarNavItems = document.querySelectorAll('.sidebar-nav');
+        sidebarNavItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.getAttribute('data-section');
+                const filter = item.getAttribute('data-filter');
+
+                // Remove active class from all sidebar items
+                sidebarNavItems.forEach(nav => nav.style.background = 'transparent');
+                item.style.background = 'rgba(148, 163, 184, 0.2)';
+
+                // Scroll to section
+                const sectionEl = document.getElementById(section);
+                if (sectionEl) {
+                    sectionEl.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Apply filter if on costco section
+                if (section === 'costco' && filter !== undefined) {
+                    if (filter === '') {
+                        // Show all
+                        document.getElementById('status-filter').value = '';
+                    } else if (filter === 'OK') {
+                        // Show Costco matches only
+                        document.getElementById('status-filter').value = 'OK';
+                    } else if (filter === 'EBAY') {
+                        // Show items with eBay data
+                        filteredData = allData.filter(item => item.ebayCount > 0);
+                        currentPage = 1;
+                        renderTable();
+                        return;
+                    }
+                    applyFilters();
+                }
+            });
+        });
+
+        // Navigation active link highlighting
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+
+        function updateActiveNav() {
+            let currentSection = 'home';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 100) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav);
+
+        // Click handlers for nav links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('href').substring(1);
+                const section = document.getElementById(target);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
