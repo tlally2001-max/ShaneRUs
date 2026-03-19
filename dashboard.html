@@ -597,12 +597,12 @@
                     <div class="stat-change">Last 7 days</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-label">eBay Profit Potential</div>
+                    <div class="stat-label">eBay Net Revenue</div>
                     <div class="stat-value" id="ebay-profit">--</div>
-                    <div class="stat-change" id="ebay-profit-detail">250 units @ avg price - fees</div>
+                    <div class="stat-change" id="ebay-profit-detail">226 units (line-by-line) minus fees</div>
                 </div>
                 <div class="stat-card red">
-                    <div class="stat-label">$5 Fallback Profit</div>
+                    <div class="stat-label">Fallback Net Revenue</div>
                     <div class="stat-value" id="fallback-bid">--</div>
                     <div class="stat-change" id="fallback-detail">201 units @ $5 minus fees</div>
                 </div>
@@ -660,7 +660,7 @@
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h3>📊 eBay Data Coverage (222 Items)</h3>
+                    <h3>📊 Net Revenue Breakdown ($5,577 Total)</h3>
                     <canvas id="statusChart"></canvas>
                 </div>
             </div>
@@ -1025,17 +1025,26 @@
             statusChart = new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['eBay Sales Data (124 items)', 'No Data — $5 Fallback (98 items)'],
+                    labels: [
+                        'eBay Net Revenue (Known Items)',
+                        'Fallback Net Revenue (Unknown Items)'
+                    ],
                     datasets: [{
-                        data: [withEbay, noEbay],
-                        backgroundColor: ['#43a047', '#f57c00'],
-                        borderColor: ['#2e7d32', '#e65100'],
-                        borderWidth: 2
+                        data: [4773, 804],
+                        backgroundColor: ['#007bff', '#6c757d'],
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: { legend: { position: 'top' } }
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ' $' + ctx.parsed.toLocaleString('en-US')
+                            }
+                        }
+                    }
                 }
             });
         }
