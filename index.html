@@ -653,7 +653,7 @@
             <!-- Charts -->
             <div class="charts-grid section" id="ebay">
                 <div class="chart-card">
-                    <h3>💰 Top 15 Items by eBay Revenue</h3>
+                    <h3>💰 Top Value Drivers by Projected Revenue</h3>
                     <canvas id="priceChart"></canvas>
                     <div id="top15-total" style="margin-top: 1rem; padding: 0.75rem 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-align: center; font-weight: 600; font-size: 1.05rem;">
                         Top 15 Total: --
@@ -970,19 +970,27 @@
         }
 
         function updateCharts() {
-            // Chart 1: Top 15 items by eBay revenue potential (avg price × qty)
-            const revenueItems = allData
-                .filter(item => item.ebayAvg && item.qty)
-                .map(item => ({
-                    label: (item.description || item.itemNum || '').substring(0, 30),
-                    revenue: Math.round(item.ebayAvg * item.qty)
-                }))
-                .sort((a, b) => b.revenue - a.revenue)
-                .slice(0, 15);
+            // Chart 1: Corrected Top 14 Value Drivers (hardcoded verified data)
+            const revenueItems = [
+                { label: 'Sharper Image Hot/Cold Massager', revenue: 364, note: '35% Retail' },
+                { label: 'Oral-B iO Brush Heads 9CT',       revenue: 337, note: 'eBay Data'  },
+                { label: 'Philips Norelco Trimmer',          revenue: 263, note: 'eBay Data'  },
+                { label: 'Philips Norelco Shaver',           revenue: 262, note: '35% Retail' },
+                { label: 'Sonicare Professional',            revenue: 238, note: 'eBay Data'  },
+                { label: 'Conair Handheld Steamer',          revenue: 211, note: 'eBay Data'  },
+                { label: 'Sonicare Optimal Clean',           revenue: 204, note: 'eBay Data'  },
+                { label: 'Degree Ultraclear Deodorant',      revenue: 193, note: 'eBay Data'  },
+                { label: 'Philips 5/6" Retrofit',            revenue: 160, note: 'eBay Data'  },
+                { label: 'Sharper Image Pro',                revenue: 154, note: 'eBay Data'  },
+                { label: 'Hoto Wand Cordless Spin',          revenue: 146, note: 'eBay Data'  },
+                { label: 'Sonicare Waterflosser 2PK',        revenue: 136, note: '35% Retail' },
+                { label: 'Philips Norelco Multigroom',       revenue: 136, note: 'eBay Data'  },
+                { label: 'Oral-B Brush Heads 10 CT',         revenue: 134, note: 'eBay Data'  }
+            ];
 
             const top15Total = revenueItems.reduce((sum, i) => sum + i.revenue, 0);
             const top15TotalEl = document.getElementById('top15-total');
-            if (top15TotalEl) top15TotalEl.textContent = 'Top 15 Total: $' + top15Total.toLocaleString('en-US');
+            if (top15TotalEl) top15TotalEl.textContent = 'Top 14 Total: $' + top15Total.toLocaleString('en-US');
 
             if (priceChart) priceChart.destroy();
             const priceCtx = document.getElementById('priceChart').getContext('2d');
@@ -991,10 +999,16 @@
                 data: {
                     labels: revenueItems.map(i => i.label),
                     datasets: [{
-                        label: 'eBay Revenue Potential ($)',
+                        label: 'Projected Revenue ($)',
                         data: revenueItems.map(i => i.revenue),
-                        backgroundColor: 'rgba(102, 126, 234, 0.75)',
-                        borderColor: '#667eea',
+                        backgroundColor: revenueItems.map(i =>
+                            i.note === '35% Retail'
+                                ? 'rgba(245, 124, 0, 0.75)'
+                                : 'rgba(102, 126, 234, 0.75)'
+                        ),
+                        borderColor: revenueItems.map(i =>
+                            i.note === '35% Retail' ? '#f57c00' : '#667eea'
+                        ),
                         borderWidth: 1,
                         borderRadius: 4
                     }]
@@ -1004,7 +1018,12 @@
                     responsive: true,
                     plugins: {
                         legend: { display: false },
-                        title: { display: true, text: 'Top 15 Items by eBay Revenue Potential', font: { size: 13 } }
+                        title: { display: true, text: 'Top Value Drivers  |  Purple = eBay Data  |  Orange = 35% Retail Est.', font: { size: 12 } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ' $' + ctx.parsed.x.toLocaleString('en-US') + '  (' + revenueItems[ctx.dataIndex].note + ')'
+                            }
+                        }
                     },
                     scales: {
                         x: {
